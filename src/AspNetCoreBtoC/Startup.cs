@@ -32,13 +32,19 @@ namespace AspNetCoreBtoC
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IConfiguration>(Configuration);
+            services.AddOptions();
+
+            services.Configure<AzureAdSettings>(Configuration.GetSection("AzureAd"));
+
             services.AddMvc();
             services.AddAuthentication(
                 opts => opts.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme);
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(
+            IApplicationBuilder app,
+            IHostingEnvironment env,
+            ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole();
 

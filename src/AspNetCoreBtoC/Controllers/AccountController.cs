@@ -8,16 +8,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AspNetCoreBtoC.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace AspNetCoreBtoC.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly IConfiguration config;
+        //private readonly IConfiguration config;
+        private readonly AzureAdSettings config;
 
-        public AccountController(IConfiguration config)
+        public AccountController(IOptions<AzureAdSettings> options)
         {
-            this.config = config;
+            config = options.Value;
         }
 
         public IActionResult SignIn()
@@ -31,7 +33,7 @@ namespace AspNetCoreBtoC.Controllers
             {
                 RedirectUri = "/"
             },
-            config["AzureAd:SignInPolicyId"]);
+            config.SignInPolicyId);
         }
 
         public IActionResult SignUp()
@@ -45,7 +47,7 @@ namespace AspNetCoreBtoC.Controllers
             {
                 RedirectUri = "/"
             },
-            config["AzureAd:SignUpPolicyId"]);
+            config.SignUpPolicyId);
         }
 
         public IActionResult EditProfile()
@@ -60,7 +62,7 @@ namespace AspNetCoreBtoC.Controllers
                 RedirectUri = "/"
             },
             ChallengeBehavior.Unauthorized,
-            config["AzureAd:UserProfilePolicyId"]);
+            config.UserProfilePolicyId);
         }
 
         public IActionResult ForgotPassword()
@@ -69,7 +71,7 @@ namespace AspNetCoreBtoC.Controllers
             {
                 RedirectUri = "/"
             },
-            config["AzureAd:ForgotPwPolicyId"]);
+            config.ForgotPwPolicyId);
         }
 
         public IActionResult SignOut()
@@ -88,9 +90,11 @@ namespace AspNetCoreBtoC.Controllers
             {
                 RedirectUri = returnUrl
             },
-            config["AzureAd:UserProfilePolicyId"],
-            config["AzureAd:SignUpPolicyId"],
-            config["AzureAd:SignInPolicyId"],
+            config.ForgotPwPolicyId,
+            config.SignUpOrInPolicyId,
+            config.UserProfilePolicyId,
+            config.SignUpPolicyId,
+            config.SignInPolicyId,
             CookieAuthenticationDefaults.AuthenticationScheme);
         }
 
