@@ -81,35 +81,32 @@ namespace AspNetCoreBtoC.AadBtoC
             {
                 throw new ArgumentNullException("options.AzureAdInstance");
             }
-            if(options.Tenant == null)
+            if(options.ClientId == null)
             {
-                throw new ArgumentNullException("options.Tenant");
+                throw new ArgumentNullException("options.ClientId");
             }
             if(options.PostLogoutRedirectUri == null)
             {
                 throw new ArgumentNullException("options.PostLogoutRedirectUri");
             }
-            if(options.ClientId == null)
+            if(options.Tenant == null)
             {
-                throw new ArgumentNullException("options.ClientId");
+                throw new ArgumentNullException("options.Tenant");
             }
 
             var opts = new OpenIdConnectOptions
             {
                 AuthenticationScheme = policyId,
-                MetadataAddress = string.Format(options.AzureAdInstance, options.Tenant, policyId),
+                AutomaticChallenge = automaticChallenge,
+                CallbackPath = callbackPath,
                 ClientId = options.ClientId,
+                MetadataAddress = string.Format(options.AzureAdInstance, options.Tenant, policyId),
                 PostLogoutRedirectUri = options.PostLogoutRedirectUri,
-                ResponseType = "id_token",
                 TokenValidationParameters = new TokenValidationParameters
                 {
                     NameClaimType = "name"
-                },
-                CallbackPath = callbackPath,
-                AutomaticChallenge = automaticChallenge
+                }
             };
-
-            opts.Scope.Add("openid");
 
             return opts;
         }
