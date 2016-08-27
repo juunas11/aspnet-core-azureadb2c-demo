@@ -16,7 +16,10 @@ namespace AspNetCoreBtoC.Extensions
             ChallengeBehavior challengeBehavior,
             params string[] authenticationSchemes)
         {
-            return new MyChallengeResult(controller.HttpContext.Authentication, authenticationProperties, challengeBehavior, authenticationSchemes);
+            return new MyChallengeResult(
+                authenticationProperties,
+                challengeBehavior,
+                authenticationSchemes);
         }
     }
 }

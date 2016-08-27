@@ -6,26 +6,33 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AspNetCoreBtoC.Extensions
 {
-    internal class MyChallengeResult : IActionResult
+    public class MyChallengeResult : IActionResult
     {
-        private readonly AuthenticationManager authenticationManager;
         private readonly AuthenticationProperties authenticationProperties;
         private readonly string[] authenticationSchemes;
         private readonly ChallengeBehavior challengeBehavior;
 
-        public MyChallengeResult(AuthenticationManager authenticationManager, AuthenticationProperties authenticationProperties, ChallengeBehavior challengeBehavior, string[] authenticationSchemes)
+        public MyChallengeResult(
+            AuthenticationProperties authenticationProperties,
+            ChallengeBehavior challengeBehavior,
+            string[] authenticationSchemes)
         {
             this.authenticationProperties = authenticationProperties;
             this.challengeBehavior = challengeBehavior;
             this.authenticationSchemes = authenticationSchemes;
-            this.authenticationManager = authenticationManager;
         }
 
         public async Task ExecuteResultAsync(ActionContext context)
         {
+            AuthenticationManager authenticationManager =
+                context.HttpContext.Authentication;
+
             foreach (string scheme in authenticationSchemes)
             {
-                await authenticationManager.ChallengeAsync(scheme, authenticationProperties, challengeBehavior);
+                await authenticationManager.ChallengeAsync(
+                    scheme,
+                    authenticationProperties,
+                    challengeBehavior);
             }
         }
     }
