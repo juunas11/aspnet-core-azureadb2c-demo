@@ -69,7 +69,7 @@ namespace AspNetCoreBtoC
                 ForgotPasswordPolicyId = aadConfig.ForgotPwPolicyId,
                 ForgotPasswordCallbackPath = aadConfig.ForgotPwCallbackPath,
                 EditProfilePolicyId = aadConfig.UserProfilePolicyId,
-                EditProfileCallbackPath = aadConfig.ProfileCallbackPath,
+                EditProfileCallbackPath = aadConfig.UserProfileCallbackPath,
                 SignInPolicyId = aadConfig.SignInPolicyId,
                 SignInCallbackPath = aadConfig.SignInCallbackPath,
                 SignUpOrInPolicyId = aadConfig.SignUpOrInPolicyId,

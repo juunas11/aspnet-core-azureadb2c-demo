@@ -18,7 +18,7 @@ namespace AspNetCoreBtoC
         public string Tenant { get; set; }
         public string SignInCallbackPath { get; set; }
         public string SignUpCallbackPath { get; set; }
-        public string ProfileCallbackPath { get; set; }
+        public string UserProfileCallbackPath { get; set; }
         public string SignUpOrInCallbackPath { get; set; }
         public string ForgotPwCallbackPath { get; set; }
     }
