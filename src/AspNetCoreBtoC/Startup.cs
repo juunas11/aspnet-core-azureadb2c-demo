@@ -14,6 +14,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication;
 using AspNetCoreBtoC.AadBtoC;
+using Microsoft.Extensions.Options;
 
 namespace AspNetCoreBtoC
 {
@@ -44,7 +45,8 @@ namespace AspNetCoreBtoC
         public void Configure(
             IApplicationBuilder app,
             IHostingEnvironment env,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            IOptions<AzureAdSettings> aadSettings)
         {
             loggerFactory.AddConsole();
 
@@ -58,22 +60,24 @@ namespace AspNetCoreBtoC
 
             app.UseCookieAuthentication();
 
+            var aadConfig = aadSettings.Value;
+
             app.UseAzureAdB2CAuthentication(new AzureAdB2CAuthenticationOptions
             {
-                SignUpPolicyId = Configuration["AzureAd:SignUpPolicyId"],
-                SignUpCallbackPath = Configuration["AzureAd:SignUpCallbackPath"],
-                ForgotPasswordPolicyId = Configuration["AzureAd:ForgotPwPolicyId"],
-                ForgotPasswordCallbackPath = Configuration["AzureAd:ForgotPwCallbackPath"],
-                EditProfilePolicyId = Configuration["AzureAd:UserProfilePolicyId"],
-                EditProfileCallbackPath = Configuration["AzureAd:ProfileCallbackPath"],
-                SignInPolicyId = Configuration["AzureAd:SignInPolicyId"],
-                SignInCallbackPath = Configuration["AzureAd:SignInCallbackPath"],
-                SignUpOrInPolicyId = Configuration["AzureAd:SignUpOrInPolicyId"],
-                SignUpOrInCallbackPath = Configuration["AzureAd:SignUpOrInCallbackPath"],
-                AzureAdInstance = Configuration["AzureAd:AadInstance"],
-                Tenant = Configuration["AzureAd:Tenant"],
-                ClientId = Configuration["AzureAd:ClientId"],
-                PostLogoutRedirectUri = Configuration["AzureAd:RedirectUri"]
+                SignUpPolicyId = aadConfig.SignUpPolicyId,
+                SignUpCallbackPath = aadConfig.SignUpCallbackPath,
+                ForgotPasswordPolicyId = aadConfig.ForgotPwPolicyId,
+                ForgotPasswordCallbackPath = aadConfig.ForgotPwCallbackPath,
+                EditProfilePolicyId = aadConfig.UserProfilePolicyId,
+                EditProfileCallbackPath = aadConfig.ProfileCallbackPath,
+                SignInPolicyId = aadConfig.SignInPolicyId,
+                SignInCallbackPath = aadConfig.SignInCallbackPath,
+                SignUpOrInPolicyId = aadConfig.SignUpOrInPolicyId,
+                SignUpOrInCallbackPath = aadConfig.SignUpOrInCallbackPath,
+                AzureAdInstance = aadConfig.AadInstance,
+                Tenant = aadConfig.Tenant,
+                ClientId = aadConfig.ClientId,
+                PostLogoutRedirectUri = aadConfig.RedirectUri
             });
 
             app.UseMvc(routes =>
