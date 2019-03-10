@@ -1,25 +1,19 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http.Authentication;
-using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AspNetCoreBtoC.Extensions;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 namespace AspNetCoreBtoC.Controllers
 {
     public class AccountController : Controller
     {
-        //private readonly IConfiguration config;
-        private readonly AzureAdSettings config;
+        private readonly AzureAdSettings _config;
 
         public AccountController(IOptions<AzureAdSettings> options)
         {
-            config = options.Value;
+            _config = options.Value;
         }
 
         public IActionResult SignIn()
@@ -33,21 +27,7 @@ namespace AspNetCoreBtoC.Controllers
             {
                 RedirectUri = "/"
             },
-            config.SignInPolicyId);
-        }
-
-        public IActionResult SignUp()
-        {
-            if (User.Identity.IsAuthenticated)
-            {
-                throw new Exception("Can't sign up, user logged in");
-            }
-
-            return Challenge(new AuthenticationProperties
-            {
-                RedirectUri = "/"
-            },
-            config.SignUpPolicyId);
+            _config.SignUpOrInPolicyId);
         }
 
         public IActionResult EditProfile()
@@ -57,12 +37,11 @@ namespace AspNetCoreBtoC.Controllers
                 throw new Exception("Can't edit profile, user not logged in");
             }
 
-            return this.Challenge(new AuthenticationProperties
+            return Challenge(new AuthenticationProperties
             {
                 RedirectUri = "/"
             },
-            ChallengeBehavior.Unauthorized,
-            config.UserProfilePolicyId);
+            _config.UserProfilePolicyId);
         }
 
         public IActionResult ForgotPassword()
@@ -71,7 +50,7 @@ namespace AspNetCoreBtoC.Controllers
             {
                 RedirectUri = "/"
             },
-            config.ForgotPwPolicyId);
+            _config.ForgotPwPolicyId);
         }
 
         public IActionResult SignOut()
@@ -80,6 +59,8 @@ namespace AspNetCoreBtoC.Controllers
             {
                 throw new Exception("Can't sign out, user not logged in");
             }
+
+            string policyId = User.FindFirstValue("tfp");
 
             string returnUrl = Url.Action(
                 action: nameof(SignedOut),
@@ -90,11 +71,7 @@ namespace AspNetCoreBtoC.Controllers
             {
                 RedirectUri = returnUrl
             },
-            config.ForgotPwPolicyId,
-            config.SignUpOrInPolicyId,
-            config.UserProfilePolicyId,
-            config.SignUpPolicyId,
-            config.SignInPolicyId,
+            policyId,
             CookieAuthenticationDefaults.AuthenticationScheme);
         }
 

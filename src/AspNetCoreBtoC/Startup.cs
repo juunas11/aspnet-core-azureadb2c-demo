@@ -1,91 +1,65 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.IdentityModel.Tokens;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Authentication;
 using AspNetCoreBtoC.AadBtoC;
-using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AspNetCoreBtoC
 {
     public class Startup
     {
-        private IConfigurationRoot Configuration { get; }
-
-        public Startup(IHostingEnvironment env)
+        public Startup(IConfiguration configuration)
         {
-            var builder = new ConfigurationBuilder()
-                            .SetBasePath(env.ContentRootPath)
-                            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                            .AddEnvironmentVariables();
-            Configuration = builder.Build();
+            Configuration = configuration;
         }
+
+        private IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddOptions();
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.Configure<AzureAdSettings>(Configuration.GetSection("AzureAd"));
+            var aadConfig = Configuration.GetSection("AzureAd").Get<AzureAdSettings>();
 
-            services.AddMvc();
-            services.AddAuthentication(
-                opts => opts.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme);
+            services.AddAuthentication(o =>
+            {
+                o.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                o.DefaultChallengeScheme = aadConfig.SignUpOrInPolicyId;
+                o.DefaultForbidScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
+            .AddCookie(o =>
+            {
+                o.Cookie.Name = "AspNetCoreBtoC.Auth";
+            })
+            .AddAzureAdB2CAuthentication(new AzureAdB2CAuthenticationOptions
+            {
+                ForgotPasswordPolicyId = aadConfig.ForgotPwPolicyId,
+                ForgotPasswordCallbackPath = aadConfig.ForgotPwCallbackPath,
+                EditProfilePolicyId = aadConfig.UserProfilePolicyId,
+                EditProfileCallbackPath = aadConfig.UserProfileCallbackPath,
+                SignUpOrInPolicyId = aadConfig.SignUpOrInPolicyId,
+                SignUpOrInCallbackPath = aadConfig.SignUpOrInCallbackPath,
+                AzureAdInstance = aadConfig.AadInstance,
+                Tenant = aadConfig.Tenant,
+                ClientId = aadConfig.ClientId
+            });
         }
 
-        public void Configure(
-            IApplicationBuilder app,
-            IHostingEnvironment env,
-            ILoggerFactory loggerFactory,
-            IOptions<AzureAdSettings> aadSettings)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            loggerFactory.AddConsole();
-
             if (env.IsDevelopment())
             {
-                loggerFactory.AddDebug(LogLevel.Information);
                 app.UseDeveloperExceptionPage();
             }
 
             app.UseStaticFiles();
 
-            app.UseCookieAuthentication();
+            app.UseAuthentication();
 
-            var aadConfig = aadSettings.Value;
-
-            app.UseAzureAdB2CAuthentication(new AzureAdB2CAuthenticationOptions
-            {
-                SignUpPolicyId = aadConfig.SignUpPolicyId,
-                SignUpCallbackPath = aadConfig.SignUpCallbackPath,
-                ForgotPasswordPolicyId = aadConfig.ForgotPwPolicyId,
-                ForgotPasswordCallbackPath = aadConfig.ForgotPwCallbackPath,
-                EditProfilePolicyId = aadConfig.UserProfilePolicyId,
-                EditProfileCallbackPath = aadConfig.UserProfileCallbackPath,
-                SignInPolicyId = aadConfig.SignInPolicyId,
-                SignInCallbackPath = aadConfig.SignInCallbackPath,
-                SignUpOrInPolicyId = aadConfig.SignUpOrInPolicyId,
-                SignUpOrInCallbackPath = aadConfig.SignUpOrInCallbackPath,
-                AzureAdInstance = aadConfig.AadInstance,
-                Tenant = aadConfig.Tenant,
-                ClientId = aadConfig.ClientId,
-                PostLogoutRedirectUri = aadConfig.RedirectUri
-            });
-
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "Default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-            });
+            app.UseMvcWithDefaultRoute();
         }
     }
 }

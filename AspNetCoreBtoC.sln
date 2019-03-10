@@ -1,16 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28705.295
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F6167CBE-4F32-429A-8071-4058B15DE0DD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{322964F4-B596-4641-9C4F-F8F9A93A2E32}"
 	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
+		LICENSE = LICENSE
+		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspNetCoreBtoC", "src\AspNetCoreBtoC\AspNetCoreBtoC.xproj", "{61949F36-84D8-403B-AA95-B8424ED99DB8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCoreBtoC", "src\AspNetCoreBtoC\AspNetCoreBtoC.csproj", "{61949F36-84D8-403B-AA95-B8424ED99DB8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,5 +29,8 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{61949F36-84D8-403B-AA95-B8424ED99DB8} = {F6167CBE-4F32-429A-8071-4058B15DE0DD}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {165A6760-DDA1-4527-9126-487C2254D6AD}
 	EndGlobalSection
 EndGlobal
